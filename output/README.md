@@ -9,3 +9,6 @@
 
 ![Covid positivity by time](img/mental-testing.png)
 ![Covid positivity by time](img/mental-sero.png)
+
+![Covid positivity by time](img/health-age.png)
+![Covid positivity by time](img/covid-age.png)

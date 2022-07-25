@@ -52,5 +52,23 @@ tw ///
     xtit("Depression Index (PCA)") ytit(" ")
   
   graph export "${git}/output/img/mental-sero.png" , replace
-  
+
+// Start disentangling
+use  "${git}/data/long-covid.dta" , clear
+tw ///
+  (lpoly illness age) ///
+  (lpoly depression age) ///
+  , by(sex) xtit("Age") ///
+    legend(order(1 "Illness Index" 2 "Depression Index"))
+
+  graph export "${git}/output/img/health-age.png" , replace
+
+tw ///
+  (lpoly seropos age) ///
+  (lpoly testpos age) ///
+  , by(sex) xtit("Age") ///
+    legend(order(1 "Seropositive" 2 "Tested Positive"))
+    
+  graph export "${git}/output/img/covid-age.png" , replace
+
 // End
