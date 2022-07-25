@@ -1,3 +1,3 @@
 # Long Covid
 
-[Covid positivity by time](covid-positive.png)
+![Covid positivity by time](covid-positive.png)
