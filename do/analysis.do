@@ -72,5 +72,19 @@ tw ///
     legend(order(1 "Seropositive" 2 "Tested Positive"))
     
   graph export "${git}/output/img/covid-age.png" , replace
+  
+// Individual health stuff 
+use  "${git}/data/long-covid.dta" , clear
+local i = 0
+foreach var of varlist sym_? {
+  local ++i
+  local label : var label `var'
+  local graphs "`graphs' (lpoly `var' age)"
+  local legend `"`legend' `i' "`label'" "'
+}
+  tw `graphs' , legend(on order(`legend') pos(3) c(1)) xtit("Age") ///
+    title("Specific Conditions Prevalence") ylab(0 "0%" .5 "50%" 1 "100%")
+
+  graph export "${git}/output/img/conditions-age.png" , replace
 
 // End

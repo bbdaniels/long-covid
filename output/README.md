@@ -12,3 +12,4 @@
 
 ![Health, age, sex](img/health-age.png)
 ![Covid, age, sex](img/covid-age.png)
+![Conditions, age, sex](img/conditions-age.png)
