@@ -19,4 +19,22 @@ venndiag testpos seropos , t1title("Covid prevalence")
   
 // Health states
 
+// Mental health
+use  "${git}/data/long-covid.dta" , clear
+tw ///
+  (kdensity depression if testpos == 1 , lc(black) lp(dash)) ///
+  (kdensity depression if testpos == 0 , lc(black) lp(solid)) ///
+  , legend(on c(1) pos(1) ring(0) order(1 "Tested Positive" 2 "Never Positive")) ///
+    xtit("Depression Index (PCA)") ytit(" ")
+  
+  graph export "${git}/output/img/mental-testing.png" , replace
+
+tw ///
+  (kdensity depression if seropos == 1 , lc(black) lp(dash)) ///
+  (kdensity depression if seropos == 0 , lc(black) lp(solid)) ///
+  , legend(on c(1) pos(1) ring(0) order(1 "Seropositive" 2 "Not Positive")) ///
+    xtit("Depression Index (PCA)") ytit(" ")
+  
+  graph export "${git}/output/img/mental-sero.png" , replace
+  
 // End
