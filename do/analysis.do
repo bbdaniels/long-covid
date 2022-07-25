@@ -13,9 +13,11 @@ histogram covid1a ///
 
 // Test results
 use  "${git}/data/long-covid.dta"
-venndiag testpos seropos , t1title("Covid prevalence")
-
-  graph export "${git}/output/img/covid-testing.png" , replace
+graph close _all
+* venndiag testpos seropos , t1title("Covid prevalence")
+  * something weird with graph overwriting here
+  * graph export "${git}/output/img/covid-testing.png" , replace
+  graph close _all
   
 // Health status
 use  "${git}/data/long-covid.dta" , clear
