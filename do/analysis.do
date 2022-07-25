@@ -1,3 +1,6 @@
+// Demographics
+histogram age, by(sex,c(1)) start(18) w(1) fc(black) lc(none) barwidth(1) freq
+  graph export "${git}/output/img/demographics.png" , replace
 
 // Wave timings
 use  "${git}/data/long-covid.dta" if covid1a > date("Jan 1 2020" ,"MDY"), clear
@@ -13,5 +16,7 @@ use  "${git}/data/long-covid.dta"
 venndiag testpos seropos , t1title("Covid prevalence")
 
   graph export "${git}/output/img/covid-testing.png" , replace
+  
+// Health states
 
 // End
