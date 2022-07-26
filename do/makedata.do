@@ -26,13 +26,31 @@ use "${box}/FF-LCS_Field_Sero_data merged_unidentified.dta" , clear
   gen seropos = (sero_result == 2)
     lab var seropos "Seropositive"
     
-    
+// Poverty/Assets
+
+  pca asset?
+    predict asset_pca
+    lab var asset_pca "Asset Index"
     
 // Mental health
 
   pca ghq1 ghq2 ghq3 ghq4 ghq5 ghq6 ghq7 ghq8 ghq9 ghq10 ghq11 ghq12
     predict depression
     lab var depression "Depression Index (PCA)"
+    
+  lab var ghq1 "Concentrate"
+  lab var ghq2 "Sleep"
+  lab var ghq3 "Useful"
+  lab var ghq4 "Decisions"
+  lab var ghq5 "Strain"
+  lab var ghq6 "Difficult"
+  lab var ghq7 "Enjoy"
+  lab var ghq8 "Problems"
+  lab var ghq9 "Unhappy"
+  lab var ghq10 "Confidence"
+  lab var ghq11 "Worthless"
+  lab var ghq12 "Happy"
+  
 
 // Keep only 
 
