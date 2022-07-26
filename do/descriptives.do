@@ -59,16 +59,16 @@ tw ///
 // Start disentangling
 use  "${git}/data/long-covid.dta" , clear
 tw ///
-  (lpoly illness age) ///
-  (lpoly depression age) ///
+  (lpoly illness age if age < 80) ///
+  (lpoly depression age if age < 80) ///
   , by(sex) xtit("Age") ///
     legend(order(1 "Illness Index" 2 "Depression Index"))
 
   graph export "${git}/output/descriptives/img/health-age.png" , replace
 
 tw ///
-  (lpoly seropos age) ///
-  (lpoly testpos age) ///
+  (lpoly seropos age if age < 80) ///
+  (lpoly testpos age if age < 80) ///
   , by(sex) xtit("Age") ///
     legend(order(1 "Seropositive" 2 "Tested Positive"))
     
