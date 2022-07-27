@@ -64,7 +64,7 @@ lab var depression "Depression"
 forest_power reg (illness depression)  ,  b t(testpos) at(1(1)20) c(age i.sex asset_pca seropos)
     graph export "${git}/output/causal/img/power-topline.png" , replace
 
-forest_power reg (sym_?)  ,  b t(testpos) at(1(1)20) c(age i.sex asset_pca seropos)
+forest_power reg (sym_?)  ,  b t(testpos) at(1(1)20) c(age i.sex i.asset_pca seropos) 
     graph export "${git}/output/causal/img/power-symptoms.png" , replace
 
 forest_power reg (ghq?*)  ,  b t(testpos) at(1(1)20) c(age i.sex asset_pca seropos)
@@ -77,5 +77,30 @@ forest_power reg (sym_?)  ,  b t(covid1c) at(1(1)20) c(age i.sex asset_pca serop
     graph export "${git}/output/causal/img/power-symptoms-hospitalized.png" , replace
 
 
+// Attrition
+
+use  "${git}/data/long-covid.dta" , clear
+
+gen rand = runiform()
+forv i = 1/100 {
+    gen cough_`i' = (rand > (`i'/100))
+    replace cough_`i' = cough if cough != .
+      lab var cough_`i' " "
+}
+
+forest reg (cough_1-cough_100) , t(seropos)  mde c(i.sero_dist i.sero_type) 
+    graph export "${git}/output/causal/img/seropos_attrition.png" , replace
+
+use  "${git}/data/long-covid.dta" , clear
+
+gen rand = runiform()
+forv i = 1/100 {
+    gen cough_`i' = (rand > (`i'/100))
+    replace cough_`i' = cough if cough != .
+      lab var cough_`i' "`=100-`i''% Cough"
+}
+
+forest_power reg (cough_1 cough_?0*) , t(seropos) at(1(1)20) c(i.sero_dist i.sero_type) 
+    graph export "${git}/output/causal/img/seropos_attrition2.png" , replace
 
 // End
