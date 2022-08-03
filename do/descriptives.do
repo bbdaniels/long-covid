@@ -14,8 +14,10 @@ histogram covid1a ///
 
 // Test results
 use  "${git}/data/long-covid.dta"
+lab var covid1c "Hospitalized"
+  replace covid1c = 0 if covid1c == .
 graph close _all
-* venndiag testpos seropos , t1title("Covid prevalence")
+* venndiag testpos seropos covid1c, t1title("Covid prevalence")
   * something weird with graph overwriting here
   * graph export "${git}/output/descriptives/img/covid-testing.png" , replace
   graph close _all

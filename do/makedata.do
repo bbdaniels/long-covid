@@ -17,6 +17,10 @@ use "${box}/FF-LCS_Field_Sero_data merged_unidentified.dta" , clear
   pca sym_?
     predict illness 
     lab var illness "Illness Index (PCA)"
+    
+  gen any_disease =  new_diseaseE == 0 if  !missing(new_diseaseE)
+    lab var any_disease "New Disease"
+  
 
 // Make covid indicators
 

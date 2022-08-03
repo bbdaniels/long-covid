@@ -1,3 +1,4 @@
+use  "${git}/data/long-covid.dta" , clear
 
 // Descriptive bits
 betterbar sym_? ///
@@ -36,24 +37,38 @@ betterbar new_disease? ///
 // "Causal" estimates of long covid
 
 use  "${git}/data/long-covid.dta" , clear
-forest reg (illness depression)(sym_?) , b bh t(testpos) c(age i.sex asset_pca)
+forest reg (illness depression any_disease)(sym_?) , b bh t(testpos) c(age i.sex asset_pca)
   graph export "${git}/output/causal/img/topline-control.png" , replace
-forest reg (illness depression)(sym_?) , b bh t(testpos) c(age i.sex asset_pca seropos)
+forest reg (illness depression any_disease)(sym_?) , b bh t(testpos) c(age i.sex asset_pca seropos)
   graph export "${git}/output/causal/img/topline-control-sero.png" , replace
-forest reg (illness depression)(sym_?) , b bh t(testpos) c(age i.sex asset_pca seropos) mde
+forest reg (illness depression any_disease)(sym_?) , b bh t(testpos) c(age i.sex asset_pca seropos) mde saving("${git}/output/causal/img/topline-control-sero-mde.xlsx")
   graph export "${git}/output/causal/img/topline-control-sero-mde.png" , replace
+forest reg (illness depression any_disease)(sym_?) if sex == 2, b bh t(testpos) c(age asset_pca seropos) mde
+  graph export "${git}/output/causal/img/topline-control-sero-mde-m.png" , replace
+forest reg (illness depression any_disease)(sym_?) if sex == 1, b bh t(testpos) c(age asset_pca seropos) mde
+  graph export "${git}/output/causal/img/topline-control-sero-mde-f.png" , replace
   
-forest reg (illness depression)(sym_?) , b bh t(seropos) c(age i.sex asset_pca) mde
+forest reg (illness depression any_disease)(sym_?) , b bh t(seropos) c(age i.sex asset_pca) mde saving("${git}/output/causal/img/sero-control-mde.xlsx")
   graph export "${git}/output/causal/img/sero-control-mde.png" , replace
-forest reg (illness depression)(sym_?) , b bh t(covid1c) c(age i.sex asset_pca seropos) mde
+forest reg (illness depression any_disease)(sym_?) if sex == 2, b bh t(seropos) c(age asset_pca) mde
+  graph export "${git}/output/causal/img/sero-control-mde-m.png" , replace
+forest reg (illness depression any_disease)(sym_?) if sex == 1, b bh t(seropos) c(age asset_pca) mde
+  graph export "${git}/output/causal/img/sero-control-mde-f.png" , replace
+  
+    replace covid1c = 0 if covid1c == .
+
+forest reg (illness depression any_disease)(sym_?) , b bh t(covid1c) c(age i.sex asset_pca seropos) mde saving("${git}/output/causal/img/hosp-control-mde.xlsx")
   graph export "${git}/output/causal/img/hosp-control-mde.png" , replace
 
 forest reg (ghq?*) , b bh t(testpos) c(age i.sex asset_pca)
   graph export "${git}/output/causal/img/depression-control.png" , replace
 forest reg (ghq?*) , b bh t(testpos) c(age i.sex asset_pca seropos)
   graph export "${git}/output/causal/img/depression-control-sero.png" , replace
-forest reg (ghq?*) , b bh t(testpos) c(age i.sex asset_pca seropos) mde
+forest reg (ghq?*) , b bh t(testpos) c(age i.sex asset_pca seropos) mde saving("${git}/output/causal/img/depression-control-sero-mde.xlsx")
   graph export "${git}/output/causal/img/depression-control-sero-mde.png" , replace
+  
+forest reg (new_disease?) , b bh t(testpos) c(age i.sex asset_pca seropos) mde saving("${git}/output/causal/img/disease-control-sero-mde.xlsx")
+  graph export "${git}/output/causal/img/disease-control-sero-mde.png" , replace
 
 // Generate power tests
 
@@ -61,10 +76,10 @@ forest reg (ghq?*) , b bh t(testpos) c(age i.sex asset_pca seropos) mde
 
 lab var illness "Wellness"
 lab var depression "Depression"
-forest_power reg (illness depression)  ,  b t(testpos) at(1(1)20) c(age i.sex asset_pca seropos)
+forest_power reg (illness depression any_disease)  ,  b t(testpos) at(1(1)20) c(age i.sex asset_pca seropos) saving("${git}/output/causal/img/power-topline.xlsx")
     graph export "${git}/output/causal/img/power-topline.png" , replace
 
-forest_power reg (sym_?)  ,  b t(testpos) at(1(1)20) c(age i.sex i.asset_pca seropos) 
+forest_power reg (sym_?)  ,  b t(testpos) at(1(1)20) c(age i.sex asset_pca seropos) 
     graph export "${git}/output/causal/img/power-symptoms.png" , replace
 
 forest_power reg (ghq?*)  ,  b t(testpos) at(1(1)20) c(age i.sex asset_pca seropos)
@@ -100,7 +115,7 @@ forv i = 1/100 {
       lab var cough_`i' "`=100-`i''% Cough"
 }
 
-forest_power reg (cough_1 cough_?0*) , t(seropos) at(1(1)20) c(i.sero_dist i.sero_type) 
+forest_power reg (cough_1 cough_?0*) , t(seropos) at(1(1)20) c(i.sero_dist i.sero_type)  saving("${git}/output/causal/img/seropos_attrition2.xlsx")
     graph export "${git}/output/causal/img/seropos_attrition2.png" , replace
 
 // End
