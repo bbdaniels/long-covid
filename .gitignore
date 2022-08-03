@@ -40,6 +40,7 @@ _config.yml
 # with EncryptedData folder below.
 
 !/**/*.png
+!/**/*.xlsx
 
 # Stata
 !/**/*.do
