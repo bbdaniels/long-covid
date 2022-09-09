@@ -1,3 +1,42 @@
+// Summary Statistics
+
+local com 
+
+local bin seropos testpos covid1c
+
+local con illness sym_? depression ghq?*  any_disease new_disease?
+
+use  "${git}/data/long-covid.dta" , clear
+
+
+sumstats ///
+  (`bin' `con') ///
+  (`bin' `con' if sex == 1) ///
+  (`bin' `con' if sex == 2) ///
+	using "${git}/output/tables/sumstats.xlsx" ///
+	, replace stats(mean sd p25 p50 p75 n )
+	
+	
+	foreach var of varlist sym_? new_diseaseA new_diseaseB new_diseaseC  new_diseaseE new_diseaseX {
+		logit `var' covid1c age i.sex asset_pca seropos if sex == 2
+	}
+
+forest logit (sym_?)(new_disease?) , or b bh t(seropos) c(age i.sex asset_pca ) saving("${git}/output/tables/table-11.xlsx")
+forest logit (sym_?)(new_disease?) , or b bh t(testpos) c(age i.sex asset_pca seropos) saving("${git}/output/tables/table-12.xlsx")
+forest logit (sym_?)(new_disease?) , or b bh t(covid1c) c(age i.sex asset_pca seropos) saving("${git}/output/tables/table-13.xlsx")
+
+forest logit (sym_?)(new_disease?) if sex == 1, or b bh t(seropos) c(age i.sex asset_pca ) saving("${git}/output/tables/table-21.xlsx")
+forest logit (sym_?)(new_disease?) if sex == 1, or b bh t(testpos) c(age i.sex asset_pca seropos) saving("${git}/output/tables/table-22.xlsx")
+forest logit (sym_?)(new_disease?) if sex == 1, or b bh t(covid1c) c(age i.sex asset_pca seropos) saving("${git}/output/tables/table-23.xlsx")
+
+forest logit (sym_?)(new_disease?) if sex == 2, or b bh t(seropos) c(age i.sex asset_pca ) saving("${git}/output/tables/table-31.xlsx")
+forest logit (sym_?)(new_disease?) if sex == 2, or b bh t(testpos) c(age i.sex asset_pca seropos) saving("${git}/output/tables/table-32.xlsx")
+forest logit (sym_?)(new_diseaseA new_diseaseB new_diseaseC  new_diseaseE ) if sex == 2, or b bh t(covid1c) c(age i.sex asset_pca seropos) saving("${git}/output/tables/table-33.xlsx")
+
+--
+
+// Regressions
+
 use  "${git}/data/long-covid.dta" , clear
 
 cap prog drop mdereg
