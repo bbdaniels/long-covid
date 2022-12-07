@@ -43,6 +43,43 @@ sumstats ///
 
 // Figure. Comparisons
 
+use  "${git}/data/long-covid.dta" if age!=., clear
+lab var covid1c "Hospitalized"
+tempfile a b c
+
+forest reg (illness depression any_disease)(sym_?) ///
+  , b bh mde t(seropos) c(age i.sex) ///
+    graphopts(scale(0.7) nodraw saving(`a') note("") ///
+      xlab(0.25 "+0.25" -0.25 "-0.25" 0 "Zero" .5 "+0.50" -.5 "-0.50"))
+forest reg (illness depression any_disease)(sym_?) ///
+  , b bh mde t(testpos) c(age i.sex) ///
+    graphopts(scale(0.7)  nodraw saving(`b')  note("") ///
+      xlab(0.25 "+0.25" -0.25 "-0.25" 0 "Zero" .5 "+0.50" -.5 "-0.50"))
+forest reg (illness depression any_disease)(sym_?) ///
+  , b bh mde t(covid1c) c(age i.sex) ///
+    graphopts(scale(0.7)  nodraw saving(`c')  note("") ///
+      xlab(0.25 "+0.25" -0.25 "-0.25" 0 "Zero" .5 "+0.50" -.5 "-0.50"))
+
+    graph combine "`a'" "`b'" "`c'" , c(1)
+    graph draw , ysize(5)
+
+  graph export "${git}/output/fig-compare.png" , replace
+
+// Tables. ORs.
+use  "${git}/data/long-covid.dta" if age!=., clear
+lab var covid1c "Hospitalized"
+
+forest logit (sym_?)(new_disease?) , or b bh t(seropos) c(age i.sex asset_pca ) saving("${git}/output/tables/table-11.xlsx")
+forest logit (sym_?)(new_disease?) , or b bh t(testpos) c(age i.sex asset_pca seropos) saving("${git}/output/tables/table-12.xlsx")
+forest logit (sym_?)(new_disease?) , or b bh t(covid1c) c(age i.sex asset_pca seropos) saving("${git}/output/tables/table-13.xlsx")
+
+forest logit (sym_?)(new_disease?) if sex == 1, or b bh t(seropos) c(age i.sex asset_pca ) saving("${git}/output/tables/table-21.xlsx")
+forest logit (sym_?)(new_disease?) if sex == 1, or b bh t(testpos) c(age i.sex asset_pca seropos) saving("${git}/output/tables/table-22.xlsx")
+forest logit (sym_?)(new_disease?) if sex == 1, or b bh t(covid1c) c(age i.sex asset_pca seropos) saving("${git}/output/tables/table-23.xlsx")
+
+forest logit (sym_?)(new_disease?) if sex == 2, or b bh t(seropos) c(age i.sex asset_pca ) saving("${git}/output/tables/table-31.xlsx")
+forest logit (sym_?)(new_disease?) if sex == 2, or b bh t(testpos) c(age i.sex asset_pca seropos) saving("${git}/output/tables/table-32.xlsx")
+forest logit (sym_?)(new_diseaseA new_diseaseB new_diseaseC  new_diseaseE ) if sex == 2, or b bh t(covid1c) c(age i.sex asset_pca seropos) saving("${git}/output/tables/table-33.xlsx")
 
 
 //
