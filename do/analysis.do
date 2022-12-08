@@ -50,15 +50,18 @@ tempfile a b c
 forest reg (illness depression any_disease)(sym_?) ///
   , b bh mde t(seropos) c(age i.sex) ///
     graphopts(scale(0.7) nodraw saving(`a') note("") ///
-      xlab(0.25 "+0.25" -0.25 "-0.25" 0 "Zero" .5 "+0.50" -.5 "-0.50"))
+      xlab(0.25 "+0.25" -0.25 "-0.25" 0 "Zero" .5 "+0.50" -.5 "-0.50")) ///
+    saving("${git}/output/tables/s-tab-f1-1.xlsx")
 forest reg (illness depression any_disease)(sym_?) ///
   , b bh mde t(testpos) c(age i.sex) ///
     graphopts(scale(0.7)  nodraw saving(`b')  note("") ///
-      xlab(0.25 "+0.25" -0.25 "-0.25" 0 "Zero" .5 "+0.50" -.5 "-0.50"))
+      xlab(0.25 "+0.25" -0.25 "-0.25" 0 "Zero" .5 "+0.50" -.5 "-0.50")) ///
+    saving("${git}/output/tables/s-tab-f1-2.xlsx")
 forest reg (illness depression any_disease)(sym_?) ///
   , b bh mde t(covid1c) c(age i.sex) ///
     graphopts(scale(0.7)  nodraw saving(`c')  note("") ///
-      xlab(0.25 "+0.25" -0.25 "-0.25" 0 "Zero" .5 "+0.50" -.5 "-0.50"))
+      xlab(0.25 "+0.25" -0.25 "-0.25" 0 "Zero" .5 "+0.50" -.5 "-0.50")) ///
+    saving("${git}/output/tables/s-tab-f1-3.xlsx")
 
     graph combine "`a'" "`b'" "`c'" , c(1)
     graph draw , ysize(5)
@@ -80,6 +83,158 @@ forest logit (sym_?)(new_disease?) if sex == 1, or b bh t(covid1c) c(age i.sex a
 forest logit (sym_?)(new_disease?) if sex == 2, or b bh t(seropos) c(age i.sex asset_pca ) saving("${git}/output/tables/table-31.xlsx")
 forest logit (sym_?)(new_disease?) if sex == 2, or b bh t(testpos) c(age i.sex asset_pca seropos) saving("${git}/output/tables/table-32.xlsx")
 forest logit (sym_?)(new_diseaseA new_diseaseB new_diseaseC  new_diseaseE ) if sex == 2, or b bh t(covid1c) c(age i.sex asset_pca seropos) saving("${git}/output/tables/table-33.xlsx")
+
+// Tables. Power -- unadjusted.
+use  "${git}/data/long-covid.dta" if age!=., clear
+lab var covid1c "Hospitalized"
+
+forest reg (illness depression any_disease)(sym_?) ///
+  , mde t(seropos) c(age i.sex)  ///
+    saving("${git}/output/tables/power-01.xlsx") graphopts(nodraw)
+forest reg (illness depression any_disease)(sym_?) ///
+  , mde t(testpos) c(age i.sex) ///
+    saving("${git}/output/tables/power-02.xlsx") graphopts(nodraw)
+forest reg (illness depression any_disease)(sym_?) ///
+  , mde t(covid1c) c(age i.sex) ///
+    saving("${git}/output/tables/power-03.xlsx") graphopts(nodraw)
+
+forest_power reg (illness depression any_disease)(sym_?) ///
+  , mde t(seropos) c(age i.sex) at(1(1)20) ///
+    saving("${git}/output/tables/power-1.xlsx") graphopts(nodraw)
+forest_power reg (illness depression any_disease)(sym_?) ///
+  , mde t(testpos) c(age i.sex) at(1(1)20) ///
+    saving("${git}/output/tables/power-2.xlsx") graphopts(nodraw)
+forest_power reg (illness depression any_disease)(sym_?) ///
+  , mde t(covid1c) c(age i.sex) at(1(1)20) ///
+    saving("${git}/output/tables/power-3.xlsx") graphopts(nodraw)
+
+    tempfile all
+
+  import excel "${git}/output/tables/power-1.xlsx" , clear first
+  keep Variable SampleMultiple Power
+    ren (Variable SampleMultiple Power)(var mul pow)
+    keep if pow >= 0.8
+    bys var: gen n = _n
+    keep if n == 1
+    ren mul sero
+    save `all' , replace
+
+  import excel "${git}/output/tables/power-01.xlsx" , clear first
+  keep Outcome PointEstimate
+    ren (Outcome PointEstimate)(var sero_e)
+    merge 1:1 var using `all' , nogen
+    save `all' , replace
+
+  import excel "${git}/output/tables/power-2.xlsx" , clear first
+  keep Variable SampleMultiple Power
+    ren (Variable SampleMultiple Power)(var mul pow)
+    keep if pow >= 0.8
+    bys var: gen n = _n
+    keep if n == 1
+    ren mul test
+    merge 1:1 var using `all' , nogen
+    save `all' , replace
+
+  import excel "${git}/output/tables/power-02.xlsx" , clear first
+  keep Outcome PointEstimate
+    ren (Outcome PointEstimate)(var test_e)
+    merge 1:1 var using `all' , nogen
+    save `all' , replace
+
+  import excel "${git}/output/tables/power-3.xlsx" , clear first
+  keep Variable SampleMultiple Power
+    ren (Variable SampleMultiple Power)(var mul pow)
+    keep if pow >= 0.8
+    bys var: gen n = _n
+    keep if n == 1
+    ren mul hosp
+    merge 1:1 var using `all' , nogen
+      save `all' , replace
+
+  import excel "${git}/output/tables/power-03.xlsx" , clear first
+  keep Outcome PointEstimate
+    ren (Outcome PointEstimate)(var hosp_e)
+    merge 1:1 var using `all' , nogen
+    save `all' , replace
+
+  export excel  var sero* test* hosp* ///
+    using "${git}/output/tables/power-unad.xlsx" , replace first(var)
+
+// Tables. Power.
+use  "${git}/data/long-covid.dta" if age!=., clear
+lab var covid1c "Hospitalized"
+
+forest reg (illness depression any_disease)(sym_?) ///
+  , b bh mde t(seropos) c(age i.sex)  ///
+    saving("${git}/output/tables/power-01.xlsx") graphopts(nodraw)
+forest reg (illness depression any_disease)(sym_?) ///
+  , b bh mde t(testpos) c(age i.sex) ///
+    saving("${git}/output/tables/power-02.xlsx") graphopts(nodraw)
+forest reg (illness depression any_disease)(sym_?) ///
+  , b bh mde t(covid1c) c(age i.sex) ///
+    saving("${git}/output/tables/power-03.xlsx") graphopts(nodraw)
+
+forest_power reg (illness depression any_disease)(sym_?) ///
+  , b bh mde t(seropos) c(age i.sex) at(1(1)20) ///
+    saving("${git}/output/tables/power-1.xlsx") graphopts(nodraw)
+forest_power reg (illness depression any_disease)(sym_?) ///
+  , b bh mde t(testpos) c(age i.sex) at(1(1)20) ///
+    saving("${git}/output/tables/power-2.xlsx") graphopts(nodraw)
+forest_power reg (illness depression any_disease)(sym_?) ///
+  , b bh mde t(covid1c) c(age i.sex) at(1(1)20) ///
+    saving("${git}/output/tables/power-3.xlsx") graphopts(nodraw)
+
+    tempfile all
+
+  import excel "${git}/output/tables/power-1.xlsx" , clear first
+  keep Variable SampleMultiple Power
+    ren (Variable SampleMultiple Power)(var mul pow)
+    keep if pow >= 0.8
+    bys var: gen n = _n
+    keep if n == 1
+    ren mul sero
+    save `all' , replace
+
+  import excel "${git}/output/tables/power-01.xlsx" , clear first
+  keep Outcome PointEstimate
+    ren (Outcome PointEstimate)(var sero_e)
+    merge 1:1 var using `all' , nogen
+    save `all' , replace
+
+  import excel "${git}/output/tables/power-2.xlsx" , clear first
+  keep Variable SampleMultiple Power
+    ren (Variable SampleMultiple Power)(var mul pow)
+    keep if pow >= 0.8
+    bys var: gen n = _n
+    keep if n == 1
+    ren mul test
+    merge 1:1 var using `all' , nogen
+    save `all' , replace
+
+  import excel "${git}/output/tables/power-02.xlsx" , clear first
+  keep Outcome PointEstimate
+    ren (Outcome PointEstimate)(var test_e)
+    merge 1:1 var using `all' , nogen
+    save `all' , replace
+
+  import excel "${git}/output/tables/power-3.xlsx" , clear first
+  keep Variable SampleMultiple Power
+    ren (Variable SampleMultiple Power)(var mul pow)
+    keep if pow >= 0.8
+    bys var: gen n = _n
+    keep if n == 1
+    ren mul hosp
+    merge 1:1 var using `all' , nogen
+      save `all' , replace
+
+  import excel "${git}/output/tables/power-03.xlsx" , clear first
+  keep Outcome PointEstimate
+    ren (Outcome PointEstimate)(var hosp_e)
+    merge 1:1 var using `all' , nogen
+    save `all' , replace
+
+  export excel  var sero* test* hosp* ///
+    using "${git}/output/tables/power.xlsx" , replace first(var)
 
 
 //
