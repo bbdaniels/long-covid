@@ -8,8 +8,8 @@ use  "${git}/data/long-covid.dta" if covid1a > date("Jan 1 2020" ,"MDY"), clear
 histogram covid1a ///
   , fc(black) lc(none) barwidth(25) xlab(,format(%tdMon_CCYY)) ///
     xoverhang xtit(" ") ytit(" ") start(`=date("Jan 1 2020" ,"MDY")') w(30.5) ///
-    title("Date of positive covid tests") freq
-    
+    title("Date of positive covid tests") freq ytit("Percent")
+
   graph export "${git}/output/descriptives/img/covid-positive.png" , replace
 
 // Test results
@@ -21,7 +21,7 @@ graph close _all
   * something weird with graph overwriting here
   * graph export "${git}/output/descriptives/img/covid-testing.png" , replace
   graph close _all
-  
+
 // Health status
 use  "${git}/data/long-covid.dta" , clear
 tw ///
@@ -29,7 +29,7 @@ tw ///
   (kdensity illness if testpos == 0 , lc(black) lp(solid)) ///
   , legend(on c(1) pos(1) ring(0) order(1 "Tested Positive" 2 "Never Positive")) ///
     xtit("Illness Index (PCA)") ytit(" ")
-  
+
   graph export "${git}/output/descriptives/img/illness-testing.png" , replace
 
 tw ///
@@ -37,9 +37,9 @@ tw ///
   (kdensity illness if seropos == 0 , lc(black) lp(solid)) ///
   , legend(on c(1) pos(1) ring(0) order(1 "Seropositive" 2 "Not Positive")) ///
     xtit("Illness Index (PCA)") ytit(" ")
-  
+
   graph export "${git}/output/descriptives/img/illness-sero.png" , replace
-  
+
 // Mental health
 use  "${git}/data/long-covid.dta" , clear
 tw ///
@@ -47,7 +47,7 @@ tw ///
   (kdensity depression if testpos == 0 , lc(black) lp(solid)) ///
   , legend(on c(1) pos(1) ring(0) order(1 "Tested Positive" 2 "Never Positive")) ///
     xtit("Depression Index (PCA)") ytit(" ")
-  
+
   graph export "${git}/output/descriptives/img/mental-testing.png" , replace
 
 tw ///
@@ -55,7 +55,7 @@ tw ///
   (kdensity depression if seropos == 0 , lc(black) lp(solid)) ///
   , legend(on c(1) pos(1) ring(0) order(1 "Seropositive" 2 "Not Positive")) ///
     xtit("Depression Index (PCA)") ytit(" ")
-  
+
   graph export "${git}/output/descriptives/img/mental-sero.png" , replace
 
 // Start disentangling
@@ -73,10 +73,10 @@ tw ///
   (lpoly testpos age if age < 80) ///
   , by(sex) xtit("Age") ///
     legend(order(1 "Seropositive" 2 "Tested Positive"))
-    
+
   graph export "${git}/output/descriptives/img/covid-age.png" , replace
-  
-// Individual health stuff 
+
+// Individual health stuff
 use  "${git}/data/long-covid.dta" , clear
 local i = 0
 foreach var of varlist sym_? {
